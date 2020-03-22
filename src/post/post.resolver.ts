@@ -5,11 +5,13 @@ import {
   Mutation,
   ResolveField,
   Parent,
+  Context,
 } from '@nestjs/graphql';
 import { Post } from 'src/database/models/post.model';
 import { PostService } from './post.service';
 import { CommentService } from 'src/comment/comment.service';
 import { Comment } from 'src/database/models/comment.model';
+import { MyContext } from 'src/app.module';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -36,8 +38,9 @@ export class PostResolver {
     return await this.postService.createPost(userId, title);
   }
 
-  @ResolveField(() => [Comment], { nullable: 'items' })
-  async comments(@Parent() parent: Post) {
-    return await this.commentService.findCommentsByPostId(parent.id);
+  @ResolveField(() => [Comment], { nullable: true })
+  async comments(@Parent() parent: Post, @Context() ctx: MyContext) {
+    const res = ctx.commentDataLoader.load(parent.id);
+    return res;
   }
 }

@@ -7,10 +7,13 @@ import {
   JoinColumn,
   Column,
   OneToMany,
+  getCustomRepository,
+  In,
 } from 'typeorm';
 import { User } from './user.model';
 import { Comment } from './comment.model';
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import DataLoader from 'dataloader';
 
 @ObjectType()
 @Entity()

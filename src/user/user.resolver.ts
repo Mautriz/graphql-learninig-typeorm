@@ -7,12 +7,14 @@ import {
   ResolveField,
   Info,
   Parent,
+  Context,
 } from '@nestjs/graphql';
 import { User } from 'src/database/models/user.model';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos';
 import { Post } from 'src/database/models/post.model';
 import { PostService } from 'src/post/post.service';
+import { MyContext } from 'src/app.module';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -23,7 +25,6 @@ export class UserResolver {
 
   @Query(() => User, { nullable: true })
   async user(@Args('userId') userId: number, @Info() info: any) {
-    console.log('info=>', info);
     return await this.userService.findUserById(userId);
   }
 
@@ -36,12 +37,11 @@ export class UserResolver {
 
   @Mutation(() => User, { nullable: true })
   async createUser(@Args('createUserDto') createUserDto: CreateUserDto) {
-    console.log(createUserDto);
     return await this.userService.createUser({ ...createUserDto });
   }
 
   @ResolveField(() => [Post], { nullable: 'items' })
-  async posts(@Parent() parent: User) {
-    return this.postService.findPostsByUserId(parent.id);
+  async posts(@Parent() parent: User, @Context() ctx: MyContext) {
+    return ctx.postDataLoader.load(parent.id);
   }
 }

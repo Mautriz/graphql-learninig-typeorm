@@ -6,6 +6,16 @@ import { DatabaseModule } from './database/database.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { UserModule } from './user/user.module';
+import { genericDataLoader, Comment } from './database/models/comment.model';
+import { Request, Response } from 'express';
+import { Post } from './database/models/post.model';
+
+export interface MyContext {
+  req: Request;
+  res: Response;
+  commentDataLoader: ReturnType<typeof genericDataLoader>;
+  postDataLoader: ReturnType<typeof genericDataLoader>;
+}
 
 @Module({
   imports: [
@@ -17,7 +27,12 @@ import { UserModule } from './user/user.module';
       debug: true,
       autoSchemaFile: true,
       installSubscriptionHandlers: true,
-      context: ({ req, res }) => ({ req, res }),
+      context: ({ req, res }) => ({
+        req,
+        res,
+        commentDataLoader: genericDataLoader(Comment, 'postId'),
+        postDataLoader: genericDataLoader(Post, 'userId'),
+      }),
     }),
     DatabaseModule,
   ],
