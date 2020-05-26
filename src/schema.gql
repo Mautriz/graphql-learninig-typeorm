@@ -1,0 +1,93 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Comment {
+  id: Float!
+  postId: Int!
+  text: String!
+}
+
+type Config {
+  stats: String!
+  amici: Int!
+  subconfig: SubConfig!
+}
+
+input CreateUserDto {
+  age: Int!
+  email: String!
+}
+
+type FriendShip {
+  userId1: Int!
+  userId2: Int!
+  friend: User!
+}
+
+input FriendShipInput {
+  userId1: Int!
+  userId2: Int!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Mutation {
+  createUser(createUserDto: CreateUserDto!): User
+  createFriendShip(friendshipInput: FriendShipInput!): [FriendShip!]!
+  createPost(title: String!, userId: Float!): Post
+  createComment(postId: Float!, text: String!): Comment!
+  doStuff: ResponseMessage!
+  createObj: MyObj!
+}
+
+type MyObj {
+  randomAge: Int
+}
+
+type Post {
+  id: Int!
+  userId: Int!
+  title: String!
+  comments: [Comment!]
+}
+
+type Query {
+  friendships: [FriendShip!]!
+  user(userInput: UserInput!): User
+  users(limit: Int): [User]!
+  post(postId: Float!): Post
+  posts(limit: Float!): [Post]!
+  scimmia: JSON!
+  rispostaACaso: ResponseMessage!
+}
+
+type ResponseMessage {
+  response: String!
+}
+
+type SubConfig {
+  lol: String!
+}
+
+type Subscription {
+  myobj: MyObj!
+}
+
+type User {
+  id: Int!
+  email: String!
+  config: Config!
+  age: Int!
+  posts: [Post]!
+  numberone: Int!
+  asdsaf: Int!
+}
+
+input UserInput {
+  userId: Int!
+  boh: String
+}

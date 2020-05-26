@@ -52,12 +52,3 @@ export class CommentRepo extends Repository<Comment> {}
 
 //     return keys.map(id => comments.filter(el => el.postId === id));
 //   });
-
-export const genericDataLoader = (t: any, keyField: string) =>
-  new DataLoader<number, typeof t[]>(async (keys: number[]) => {
-    const comments = await getRepository(t).find({
-      where: { [keyField]: In(keys) },
-    });
-
-    return keys.map(id => comments.filter(el => el[keyField] === id));
-  });

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -6,15 +6,18 @@ import { DatabaseModule } from './database/database.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { UserModule } from './user/user.module';
-import { genericDataLoader, Comment } from './database/models/comment.model';
 import { Request, Response } from 'express';
-import { Post } from './database/models/post.model';
+
+import { join } from 'path';
+import { AuthDirective } from './user/auth.directive';
+import { RoleMiddleware } from './role.middleware';
+import { SuperResolver } from './friendship/super.resolver';
+import { RandomResolver } from './resolvers/random.resolver';
 
 export interface MyContext {
   req: Request;
   res: Response;
-  commentDataLoader: ReturnType<typeof genericDataLoader>;
-  postDataLoader: ReturnType<typeof genericDataLoader>;
+  role: string;
 }
 
 @Module({
@@ -23,20 +26,35 @@ export interface MyContext {
     CommentModule,
     UserModule,
     GraphQLModule.forRoot({
+      useGlobalPrefix: true,
+      cors: true,
+      schemaDirectives: {
+        auth: AuthDirective,
+      },
       playground: true,
       debug: true,
-      autoSchemaFile: true,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       installSubscriptionHandlers: true,
+      uploads: {
+        maxFileSize: 100000000,
+        maxFiles: 5,
+      },
       context: ({ req, res }) => ({
         req,
         res,
-        commentDataLoader: genericDataLoader(Comment, 'postId'),
-        postDataLoader: genericDataLoader(Post, 'userId'),
+        user: '>Bella nig',
+        // commentDataLoader,
+        // postDataLoader,
       }),
+      // resolvers: { JSON: GraphQLJSON },
     }),
     DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SuperResolver, RandomResolver],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consume: MiddlewareConsumer) {
+    consume.apply(RoleMiddleware).forRoutes('graphql');
+  }
+}
